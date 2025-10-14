@@ -1,2 +1,7 @@
-# eBay_ML_Challenge_2025
-This will be the repository where we will be contributing to complete the ebay challenge.
+This repository contains our code and assets for the eBay NER tagging challenge.
+This project contains 
+- data/ (datasets, tracked by DVC)
+-notebooks (EDA, experiments)
+-src/ (source code)
+-docs/ (design notes, project charter)
+-outputs/ (models, predictions,tracked by DVC)

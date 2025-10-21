@@ -1,0 +1,9 @@
+model_name: xlm-roberta-base
+max_length: 160
+batch_size: 16
+epochs: 8
+learning_rate: 3e-5
+weight_decay: 0.01
+warmup_ratio: 0.06
+fp16: true
+seed: 42

@@ -59,7 +59,7 @@ def to_bio_sequences(tagged_df: pd.DataFrame) -> List[Dict]:
     records = []
     for rid, g in tagged_df.groupby("Record Number", sort=False):
         tokens = g["Token"].tolist()
-        cats = g["Category Id"].unique().tolist()
+        cats = g["Category"].unique().tolist()
         cat = cats[0] if cats else None
         raw_tags = g["Tag"].tolist()
 

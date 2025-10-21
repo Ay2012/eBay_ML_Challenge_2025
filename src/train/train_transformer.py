@@ -1,6 +1,7 @@
 import argparse
 import os
 import random
+import time
 from typing import Dict, List
 
 import numpy as np
@@ -125,7 +126,7 @@ def main():
         learning_rate=float(cfg.get("learning_rate", 3e-5)),
         num_train_epochs=int(cfg.get("epochs", 8)),
         weight_decay=float(cfg.get("weight_decay", 0.01)),
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         logging_steps=50,
         warmup_ratio=float(cfg.get("warmup_ratio", 0.06)),
@@ -145,7 +146,10 @@ def main():
         compute_metrics=compute_metrics_builder(id2label),
     )
 
+    start_time = time.time()
     trainer.train()
+    elapsed = time.time() - start_time
+    print(f"\n⏱️ Training took {elapsed/60:.2f} minutes ({elapsed:.1f} seconds)\n")
     os.makedirs(args.outdir, exist_ok=True)
     trainer.save_model(args.outdir)
     tokenizer.save_pretrained(args.outdir)

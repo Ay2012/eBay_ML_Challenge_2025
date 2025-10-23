@@ -13,6 +13,7 @@ from transformers import (
     AutoModelForTokenClassification,
     TrainingArguments,
     Trainer,
+    DataCollatorForTokenClassification,
 )
 from seqeval.metrics import f1_score
 
@@ -119,6 +120,15 @@ def main():
     train_ds = EncodedDataset(train_enc)
     valid_ds = EncodedDataset(valid_enc)
 
+    # Check if we're on MPS (Apple Silicon) and disable FP16 if so
+    use_fp16 = bool(cfg.get("fp16", True))
+    if torch.backends.mps.is_available():
+        print("⚠️  MPS detected - disabling FP16 to prevent NaN gradients")
+        use_fp16 = False
+        # Set memory management for MPS
+        os.environ['PYTORCH_MPS_HIGH_WATERMARK_RATIO'] = '0.0'
+        print("⚠️  MPS memory limit disabled - monitor system memory usage")
+    
     args_hf = TrainingArguments(
         output_dir=args.outdir,
         per_device_train_batch_size=int(cfg.get("batch_size", 16)),
@@ -131,18 +141,23 @@ def main():
         logging_steps=50,
         warmup_ratio=float(cfg.get("warmup_ratio", 0.06)),
         gradient_accumulation_steps=int(cfg.get("grad_accum", 1)),
-        fp16=bool(cfg.get("fp16", True)),
+        fp16=use_fp16,
+        max_grad_norm=1.0,  # Add gradient clipping to prevent explosion
+        dataloader_pin_memory=False,  # Disable pin_memory on MPS
         load_best_model_at_end=True,
         metric_for_best_model="f1_seqeval",
         greater_is_better=True,
     )
 
+    data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
+    
     trainer = Trainer(
         model=model,
         args=args_hf,
         train_dataset=train_ds,
         eval_dataset=valid_ds,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
+        data_collator=data_collator,
         compute_metrics=compute_metrics_builder(id2label),
     )
 

@@ -8,3 +8,4 @@ data/
 !src/data/
 outputs/
 .DS_Store
+checkpoints/

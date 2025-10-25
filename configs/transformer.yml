@@ -1,9 +1,10 @@
 model_name: xlm-roberta-base
 max_length: 160
-batch_size: 16
+batch_size: 8
+grad_accum: 2  # Effective batch size = 8 * 2 = 16
 epochs: 8
 learning_rate: 3e-5
 weight_decay: 0.01
 warmup_ratio: 0.06
-fp16: true
+fp16: false
 seed: 42
